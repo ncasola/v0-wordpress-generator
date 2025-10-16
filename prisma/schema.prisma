@@ -1,0 +1,86 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Usuario - sincronizado con Neon Auth
+model User {
+  id        String   @id @default(cuid())
+  stackId   String   @unique // ID del usuario en Stack Auth
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  apiKeys  ApiKey?
+  projects Project[]
+
+  @@map("users")
+}
+
+// API Keys encriptadas por usuario
+model ApiKey {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // API Keys encriptadas
+  v0ApiKey      String?  @db.Text // Encriptada
+  openAiApiKey  String?  @db.Text // Encriptada
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("api_keys")
+}
+
+// Proyectos
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  inspiration String   @db.Text
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relaciones
+  artifacts   Artifact[]
+
+  @@index([userId])
+  @@map("projects")
+}
+
+// Artefactos generados
+model Artifact {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  kind      String   // "section" | "page" | "html"
+  title     String
+  slug      String
+  inputText String?  @db.Text
+  
+  html      String   @db.Text
+  css       String?  @db.Text
+  js        String?  @db.Text
+  
+  version   Int      @default(1)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([projectId])
+  @@index([createdAt])
+  @@map("artifacts")
+}
