@@ -1,6 +1,14 @@
 {
-  "name": "my-v0-project",
+  "name": "wptheme-generator",
   "version": "0.1.0",
+  "description": "WordPress Theme Generator",
+  "author": "Nestor Casola",
+  "license": "GPL-3.0",
+  "homepage": "https://github.com/ncasola/wptheme-generator",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ncasola/wptheme-generator.git"
+  },
   "private": true,
   "scripts": {
     "build": "next build",
